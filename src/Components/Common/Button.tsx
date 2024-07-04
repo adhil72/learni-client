@@ -1,7 +1,8 @@
 import React, { HTMLAttributes, useEffect } from "react";
 
-interface ButtonProps extends HTMLAttributes<HTMLDivElement> {
+interface ButtonProps extends HTMLAttributes<HTMLButtonElement> {
     variant?: "contained" | "outlined" | "text";
+    type?: "submit" | "reset" | "button";
 }
 
 export default function Button({ className, unselectable = "on", variant = "contained", ...props }: ButtonProps) {
@@ -9,7 +10,7 @@ export default function Button({ className, unselectable = "on", variant = "cont
     const solidButton = `bg-tint text-white px-3 py-2 rounded-xl cursor-pointer hover:bg-opacity-90 ${className}`;
     const outlinedButton = `border border-tint text-tint px-3 py-2 rounded-xl cursor-pointer bg-tint bg-opacity-0 hover:bg-opacity-10 ${className}`;
     const textButton = `text-tint bg-tint bg-opacity-0 px-3 py-2 cursor-pointer hover:bg-opacity-10 rounded-xl ${className}`;
-    const ref = React.createRef<HTMLDivElement>();
+    const ref = React.createRef<HTMLButtonElement>();
 
     useEffect(() => {
         if (ref.current === null) return;
@@ -57,12 +58,12 @@ export default function Button({ className, unselectable = "on", variant = "cont
     })
 
     return (
-        <div
+        <button
             ref={ref}
             unselectable={unselectable}
             {...props}
-            className={`${variant === "contained" ? solidButton : variant === "outlined" ? outlinedButton : textButton} font-bold uppercase flex items-center justify-center trans`}
+            className={`${variant === "contained" ? solidButton : variant === "outlined" ? outlinedButton : textButton} font-bold uppercase flex items-center justify-center transform duration-100`}
             style={{ userSelect: "none" }} // Add this line
-        ></div>
+        ></button>
     );
 }

@@ -1,18 +1,16 @@
-"use client";
+import Button from "@/Components/Common/Button"
+import AsyncLoop from "@/Utils/AsyncLoop"
+import { instance } from "@/api/instance"
+import { useEffect, useRef, useState } from "react"
+import { BiPlay } from "react-icons/bi"
 
-import AsyncLoop from '@/Utils/AsyncLoop';
-import { Box, Button, CircularProgress, Dialog, TextField, Typography } from '@mui/material';
-import React, { useEffect, useRef, useState } from 'react'
-import GeneratePopup from './GeneratePopup';
-import { audioFile, generateParagraphScript } from '@/api/controllers/ai.api';
+export default function ({ data }: { data: string[] }) {
 
-function Player() {
+    const titleRef = useRef<HTMLHeadingElement>(null)
+    const bodyDivRef = useRef<HTMLDivElement>(null)
+    const scrollDivRef = useRef<HTMLDivElement>(null)
 
-    const titleRef = useRef<HTMLHeadingElement>()
-    const bodyDivRef = useRef<HTMLDivElement>()
-
-    const [paragraphInput, setParagraphInput] = useState(false)
-    const [generating, setGenerating] = useState(false)
+    const [playing, setPlaying] = useState(false)
 
     const clearBoard = async () => {
         if (!titleRef.current) return
@@ -42,16 +40,60 @@ function Player() {
         })
     }
 
-    const setTitle = async (title: string) => {
+    const setTitle = async () => {
         if (!titleRef.current) return
-        titleRef.current.innerText = title
+        for (let i = 0; i < data.length; i++) {
+            const item = data[i];
+            if (!item) continue
+            if (item.includes("<h1>") && item.includes("</h1>")) {
+                let title = item.replace("<h1>", "").replace("</h1>", "").replace("<wrt>", "").replace("</wrt>", "")
+                titleRef.current.innerText = title
+                break;
+            }
+        }
     }
 
     const addText = async (text: string) => {
         if (!bodyDivRef.current) return
-        bodyDivRef.current.innerHTML += text + '</br>'
+        if (!text) return
+        if (!text.includes("<") && !text.includes(">")) {
+            await typeWithAnimation(text, bodyDivRef.current)
+            loadMathJax()
+            scrollToBottom()
+            return
+        }
+        bodyDivRef.current.innerHTML += text
+        let e = bodyDivRef.current.lastChild
+        if (!e) return
+        let textToType = (e as any).innerText || "error"
+        e.textContent = ''
+        await typeWithAnimation(textToType, e)
+        loadMathJax()
         scrollToBottom()
         return
+    }
+
+    const loadMathJax = () => {
+        if (typeof (window as any)?.MathJax !== "undefined") {
+            (window as any).MathJax.typeset()
+        } else {
+            console.log('MathJax not loaded');
+        }
+    }
+
+    const typeWithAnimation = async (text: string, div: any) => {
+        return new Promise((resolve, reject) => {
+            let i = 0;
+            const interval = setInterval(() => {
+                div.innerHTML += text[i];
+                if (text[i] === "$") loadMathJax()
+                i++;
+                if (i > text.length - 1) {
+                    clearInterval(interval);
+                    resolve(null)
+                }
+            }, 40)
+        })
     }
 
     const addImage = async (src: string, alt: string) => {
@@ -80,9 +122,9 @@ function Player() {
     }
 
     const scrollToBottom = () => {
-        if (!bodyDivRef.current) return
-        bodyDivRef.current.scrollTo({
-            top: bodyDivRef.current.scrollHeight,
+        if (!scrollDivRef.current) return
+        scrollDivRef.current.scrollTo({
+            top: scrollDivRef.current.scrollHeight,
             behavior: 'smooth'
         });
     }
@@ -91,49 +133,52 @@ function Player() {
         return new Promise(resolve => setTimeout(resolve, ms))
     }
 
-    const generate = (para: string) => {
-        setGenerating(true)
-        generateParagraphScript(para, '').then((data) => {
-            data.data.forEach(async (item: string) => {
-                console.log(item)
-            })
-
-            setGenerating(false)
-            setParagraphInput(false)
-            new AsyncLoop().run((data.data), async (item: string) => {
-                if (item.includes('<title>')) {
-                    await setTitle(item.replace('<title>', '').replace('</title>', ''))
-                } else if (item.includes('<wrt>')) {
-                    await addText(item.replace('<wrt>', '').replace('</wrt>', ''))
-                } else if (item.includes('<img>')) {
-                    await addImage(item.replace('<img>', '').replace('</img>', ''), 'Image')
-                } else if (item.includes('<aud>')) {
-                    await playAudio(audioFile(item.replace('<aud>', '').replace('</aud>', '')))
-                }
-                await sleep(300)
-            })
+    const play = async () => {
+        setPlaying(true)
+        const d = [...data]
+        new AsyncLoop().run(d, async (item: string) => {
+            if (item.includes("<wrt>") && item.includes("</wrt>")) {
+                let text = item.replace("<wrt>", "").replace("</wrt>", "")
+                await addText(text)
+            } else if (item.includes("<img>") && item.includes("</img>")) {
+                let src = item.replace("<img>", "").replace("</img>", "")
+                await addImage(src, 'image')
+            } else if (item.includes("<aud>") && item.includes("</aud>")) {
+                let src = item.replace("<aud>", "").replace("</aud>", "")
+                await playAudio(`${instance.defaults.baseURL}/file?name=${src}`)
+            } else if (item.includes("<clr></clr>")) {
+                await clearBoard()
+            }
+        }).then(async () => {
+            setPlaying(false)
         })
     }
 
     useEffect(() => {
-
-    }, [])
-
+        setTitle()
+    })
 
     return (
-        <div style={{ width: '100%', height: '100vh' }}>
-            <GeneratePopup paragraphInput={paragraphInput} setParagraphInput={setParagraphInput} generate={generate} generating={generating} />
-            <center>
-                <div style={{ marginTop: '100px' }}>
-                    <Button onClick={() => setParagraphInput(true)} color='success' variant='contained'>Generate</Button>
-                    <br />
-                    <br />
+        <div className="w-full h-full flex items-center justify-center bg-slate-800 rounded-lg relative overflow-hidden">
+            <div ref={scrollDivRef} className="w-full h-full overflow-y-auto">
+                <div className="p-5">
+                    <div
+                        ref={bodyDivRef}
+                        className="text-white text-md font-normal mt-2"
+                        style={{ width: "100%", height: "100%" }}
+                    ></div>
+                </div>
+            </div>
+            {!playing && <div className={`absolute w-full h-full flex items-center justify-center bg-slate-800 bg-opacity-50`}>
+                <div className="w-full h-full relative flex items-center justify-center flex-col">
+                    <Button onClick={play} className="bg-white rounded-full p-3 top-1/2">
+                        <BiPlay className="text-slate-800 text-2xl" />
+                    </Button>
+                    <span ref={titleRef} className="text-md animate-slide-down-fade text-white font-bold line-clamp-1"></span>
 
                 </div>
-                <audio id='audioPlayer' src='' muted controls style={{}} ></audio>
-            </center>
+            </div>}
+            <audio id="audioPlayer" src=""></audio>
         </div>
-    )
+    );
 }
-
-export default Player
