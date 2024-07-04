@@ -7,14 +7,18 @@ import { createChatController, getChatsController } from "@/api/controllers/chat
 import { createToast } from "@/Components/Common/Toast";
 import Script from "next/script";
 import { Chat } from "@/types/chat.types";
+import { useRouter } from "next/navigation";
 
 export default function Controller(props: React.HTMLProps<HTMLDivElement>) {
 
     const [chatId, setChatId] = useState("");
     const [chats, setChats] = useState<Chat[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const router = useRouter();
 
     const getChatId = async () => {
-        getChatsController().then(({ data }) => {
+        return await getChatsController().then(({ data }) => {
             setChats(data);
             if (data.length === 0) {
                 createChat()
@@ -28,6 +32,7 @@ export default function Controller(props: React.HTMLProps<HTMLDivElement>) {
     const createChat = () => {
         createChatController().then(({ data }) => {
             setChatId(data.id);
+            createToast({ message: "Chat created successfully", title: "Success", type: "success" });
         }).catch(e => {
             createToast({ message: e.message, title: "Error", type: "error" });
         })
@@ -41,9 +46,20 @@ export default function Controller(props: React.HTMLProps<HTMLDivElement>) {
     }), [chatId, setChatId, chats, createChat])
 
     useEffect(() => {
-        if (localStorage.getItem("token") && chatId === "") getChatId();
-        // else setChatId("123"); else window.location.href = "/login";
-    })
+        if (localStorage.getItem("token")) {
+            if (chatId === "") {
+                getChatId()
+            } else {
+                setLoading(false);
+            }
+
+        } else {
+            if (window.location.pathname === "/login" || window.location.pathname === "/") { } else {
+                router.push("/login");
+            }
+            setLoading(false);
+        }
+    }, [loading])
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -75,9 +91,7 @@ export default function Controller(props: React.HTMLProps<HTMLDivElement>) {
             src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
         />
         {
-            chatId ? <div {...props}>
-
-            </div> : <div className="flex items-center justify-center w-full h-screen">
+            loading ? <div {...props} /> : <div className="flex items-center justify-center w-full h-screen">
                 <div className="flex flex-col justify-center items-center">
                     <CircularProgress size={40} varient="infinite" />
                     <p className="text-tint text-center mt-4">Just a sec</p>

@@ -20,12 +20,6 @@ export default function Chat() {
         }
     }, [messages])
 
-    useEffect(() => {
-        if (typeof (window as any)?.MathJax !== "undefined") {
-            (window as any).MathJax.typeset()
-        }
-    }, [])
-
     return <Row className="w-full h-screen bg-primary">
         <Sidebar />
         <Column className="w-full h-screen">

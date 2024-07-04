@@ -13,7 +13,7 @@ const focusedTypes = [
     "date", "time"
 ]
 
-export default function Input({ multiline, label, labelProps, inputProps, type = "text", value, defaultValue, variant = "outlined", ...layoutProps }: Props) {
+export default function Input({ multiline, label, labelProps, inputProps, name, type = "text", value, defaultValue, variant = "outlined", ...layoutProps }: Props) {
 
     const labelRef = React.useRef<HTMLDivElement>(null)
     const inputRef = React.useRef<HTMLInputElement>(null)
@@ -21,7 +21,7 @@ export default function Input({ multiline, label, labelProps, inputProps, type =
     const outlinedInput = `border-2 px-5 border-primary py-2 rounded-lg ${layoutProps.disabled && "border-opacity-50"}`
     const solidInput = `rounded-lg ${layoutProps.disabled && "bg-opacity-50"}`
 
-    const solidLayout = `bg-tint bg-opacity-20 px-3 rounded-lg ${layoutProps.disabled && "bg-opacity-50"}`
+    const solidLayout = `bg-tint bg-opacity-10 px-3 rounded-lg ${layoutProps.disabled && "bg-opacity-50"}`
 
     const handleOnInputFocused = (e: React.FocusEvent<HTMLInputElement>) => {
         if (!labelRef.current || layoutProps?.disabled) return e.target.blur()
@@ -82,6 +82,7 @@ export default function Input({ multiline, label, labelProps, inputProps, type =
                     onFocus={handleOnInputFocused}
                     {...inputProps}
                     type={type}
+                    name={name}
                     className={`${inputProps?.className} pb-2 w-full bg-transparent outline-none ${variant === "solid" ? solidInput : outlinedInput}`} disabled={labelProps?.disabled}
                 />
             )}
