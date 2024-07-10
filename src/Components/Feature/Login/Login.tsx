@@ -1,15 +1,22 @@
 import Button from "@/Components/Common/Button";
+import CircularProgress from "@/Components/Common/CircularProgress";
 import Input from "@/Components/Common/Input";
+import LinearProgress from "@/Components/Common/LinearProgress";
 import { createToast } from "@/Components/Common/Toast";
 import { loginController } from "@/api/controllers/auth.api";
+import { useState } from "react";
 
 export default function Login() {
+
+    const [progressing, setProgressing] = useState(false);
+
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         let t = e.target as any;
         let email = t.email.value;
         let password = t.password.value;
 
+        setProgressing(true);
         loginController({ email, password })
             .then(({ data }) => {
                 localStorage.setItem("token", data.token);
@@ -26,6 +33,8 @@ export default function Login() {
                     type: "error",
                     title: "Error",
                 });
+            }).finally(() => {
+                setProgressing(false);
             });
     };
 
@@ -44,6 +53,7 @@ export default function Login() {
                     <h2 className="text-2xl font-bold mb-6">Login to learni</h2>
                     <p className="mb-6">Try learni ai teacher for free</p>
                     <form onSubmit={handleSubmit}>
+                        <LinearProgress varient="infinite" className="my-2 rounded-full" hidden={!progressing} />
                         <div className="mb-4">
                             <Input variant="solid" label="Email" type="email" name="email" />
                         </div>

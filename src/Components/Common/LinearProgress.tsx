@@ -13,7 +13,7 @@ export default function LinearProgress({ progress, varient, ...props }: Props) {
         </div>
     } else {
         return <div {...props} className={`w-full h-2 bg-tint-dark overflow-hidden ${props.className}`}>
-            <div className="animate-translate w-full h-2 bg-tint">
+            <div className="animate-translate w-full h-2 bg-blue-800">
             </div>
         </div>
     }
