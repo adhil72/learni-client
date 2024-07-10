@@ -4,7 +4,7 @@ import { instance } from "@/api/instance"
 import { useEffect, useRef, useState } from "react"
 import { BiPlay } from "react-icons/bi"
 
-export default function ({ data }: { data: string[] }) {
+export default function Player({ data }: { data: string[] }) {
 
     const titleRef = useRef<HTMLHeadingElement>(null)
     const bodyDivRef = useRef<HTMLDivElement>(null)
