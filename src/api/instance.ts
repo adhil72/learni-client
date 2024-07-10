@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const instance = axios.create({
-    baseURL: "http://localhost:50000/v1"
+    baseURL: "https://learni-api.onrender.com/v1"
 })
 
 

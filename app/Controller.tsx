@@ -52,12 +52,12 @@ export default function Controller(props: React.HTMLProps<HTMLDivElement>) {
             } else {
                 setLoading(false);
             }
-
         } else {
-            if (window.location.pathname === "/login" || window.location.pathname === "/") { } else {
-                router.push("/login");
+            if (window.location.pathname === "/login" || window.location.pathname === "/") {
+                return 
+             } else {
+                return router.push("/login");
             }
-            setLoading(false);
         }
     }, [loading])
 
