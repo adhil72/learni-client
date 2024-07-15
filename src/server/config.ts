@@ -7,7 +7,6 @@ export async function serverConfig() {
     await connect().catch((err) => {
         error(err);
     })
-    return NextResponse.next();
 }
 
 export const config = {

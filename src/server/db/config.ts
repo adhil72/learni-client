@@ -11,9 +11,9 @@ export const connect = async () => {
     console.log(info.connected);
 
     if (info.connected) return;
-    mongoose.connect(process.env.MONGO_URI || "")
+    await mongoose.connect(process.env.MONGO_URI || "")
         .then(() => {
-            info.connected = true            
+            info.connected = true
         });
     msg('Connecting database :' + process.env.MONGO_URI as any);
 }
