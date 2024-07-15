@@ -145,7 +145,7 @@ export default function Player({ data }: { data: string[] }) {
                 await addImage(src, 'image')
             } else if (item.includes("<aud>") && item.includes("</aud>")) {
                 let src = item.replace("<aud>", "").replace("</aud>", "")
-                await playAudio(`${instance.defaults.baseURL}/file?name=${src}`)
+                await playAudio(`/audio/${src}`)
             } else if (item.includes("<clr></clr>")) {
                 await clearBoard()
             }
