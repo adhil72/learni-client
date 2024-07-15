@@ -1,5 +1,5 @@
 import { verify } from "./Jwt";
-import { error, msg } from "./Logger";
+import { msg } from "./Logger";
 
 const publicRoutes = ['/api/auth', '/file'];
 
