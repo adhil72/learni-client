@@ -30,7 +30,9 @@ const config: Config = {
         "fade-in": "fade-in 0.1s ",
         scale: 'scale 0.3s ease-in-out infinite',
         translate: 'translate 1s ease-in-out infinite',
-        slideLeft: 'slideLeft 1s ease-in-out infinite'
+        slideLeft: 'slideLeft 1s ease-in-out infinite',
+        'gradient-flow': 'gradient-flow 5s ease infinite',
+        'glow': 'glow 4s ease-in-out infinite',
       },
     },
     keyframes: {
@@ -81,7 +83,25 @@ const config: Config = {
         '100%': {
           transform: 'translateX(-100%)'
         }
-      }
+      },
+      'gradient-flow': {
+        '0%, 100%': {
+          'background-size': '200% 200%',
+          'background-position': 'left center',
+        },
+        '50%': {
+          'background-size': '200% 200%',
+          'background-position': 'right center',
+        },
+      },
+      glow: {
+        '0%, 100%': {
+          'box-shadow': '0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.5)',
+        },
+        '50%': {
+          'box-shadow': '0 0 20px rgba(255, 255, 255, 1), 0 0 30px rgba(255, 255, 255, 1), 0 0 40px rgba(255, 255, 255, 1), 0 0 50px rgba(255, 255, 255, 1)',
+        },
+      },
     }
   },
   plugins: [],

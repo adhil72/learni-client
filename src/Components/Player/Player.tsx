@@ -1,4 +1,3 @@
-import Button from "@/Components/Common/Button"
 import AsyncLoop from "@/Utils/AsyncLoop"
 import { instance } from "@/api/instance"
 import { useEffect, useRef, useState } from "react"
@@ -86,7 +85,6 @@ export default function Player({ data }: { data: string[] }) {
             let i = 0;
             const interval = setInterval(() => {
                 div.innerHTML += text[i];
-                if (text[i] === "$") loadMathJax()
                 i++;
                 if (i > text.length - 1) {
                     clearInterval(interval);
@@ -135,6 +133,7 @@ export default function Player({ data }: { data: string[] }) {
 
     const play = async () => {
         setPlaying(true)
+        clearBoard()
         const d = [...data]
         new AsyncLoop().run(d, async (item: string) => {
             if (item.includes("<wrt>") && item.includes("</wrt>")) {
@@ -145,7 +144,7 @@ export default function Player({ data }: { data: string[] }) {
                 await addImage(src, 'image')
             } else if (item.includes("<aud>") && item.includes("</aud>")) {
                 let src = item.replace("<aud>", "").replace("</aud>", "")
-                await playAudio(`/audio/${src}`)
+                await playAudio(`${instance.defaults.baseURL}/file?name=${src}`)
             } else if (item.includes("<clr></clr>")) {
                 await clearBoard()
             }
@@ -171,9 +170,9 @@ export default function Player({ data }: { data: string[] }) {
             </div>
             {!playing && <div className={`absolute w-full h-full flex items-center justify-center bg-slate-800 bg-opacity-50`}>
                 <div className="w-full h-full relative flex items-center justify-center flex-col">
-                    <Button onClick={play} className="bg-white rounded-full p-3 top-1/2">
+                    <button onClick={play} className="bg-white rounded-full p-3 top-1/2">
                         <BiPlay className="text-slate-800 text-2xl" />
-                    </Button>
+                    </button>
                     <span ref={titleRef} className="text-md animate-slide-down-fade text-white font-bold line-clamp-1"></span>
 
                 </div>
